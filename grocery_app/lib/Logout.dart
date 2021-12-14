@@ -5,6 +5,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:grocery_app/constantVarriables.dart';
 import 'package:grocery_app/utils/routes.dart';
 
 class LogoutAlert extends StatefulWidget {
@@ -299,7 +300,9 @@ class _LogoutAlertState extends State<LogoutAlert> {
                     );
 
                     if (action == DialogAction.yes) {
+                      preferences!.setString("user_id", "null");
                       Navigator.pushNamed(context, MyRoutes.signin);
+                      print(preferences!.getString("user_id"));
                     } else {
                       setState(() =>
                           //exit(0),

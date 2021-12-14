@@ -13,7 +13,18 @@ class LandingScreen extends StatefulWidget {
 }
 
 class _LandingScreenState extends State<LandingScreen> {
-  Color bgColor = Color(0xFF08db5c);
+  Color bgColor = Colors.teal.shade400;
+  LinearGradient bg1 = LinearGradient(
+    begin: Alignment.bottomLeft,
+    end: Alignment.bottomRight,
+    stops: [0.1, 0.5, 0.7, 0.9],
+    colors: [
+      Colors.purple.shade700,
+      Colors.purple.shade600,
+      Colors.purple.shade500,
+      Colors.purple.shade400,
+    ],
+  );
   int currentIndex = 0;
   final iconList = <IconData>[
     CupertinoIcons.home,
@@ -30,46 +41,51 @@ class _LandingScreenState extends State<LandingScreen> {
   var pageList = [Home_page(), Offer(), OrderHistory(), LogoutAlert()];
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: pageList[currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: bgColor,
-        currentIndex: currentIndex,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Color(0xFFFFFFFF),
-        selectedFontSize: 0,
-        unselectedFontSize: 0,
-        items: List.generate(
-          pageList.length,
-          (index) => BottomNavigationBarItem(
-            label: labelList[index],
-            icon: Container(
-              width: 60,
-              height: 55,
-              decoration: currentIndex == index
-                  ? BoxDecoration(
-                      gradient: LinearGradient(
-                          colors: [Colors.yellow.shade300, bgColor],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          stops: [.1, .1]))
-                  : BoxDecoration(),
-              //color: currentIndex == index ? Colors.yellow : bgColor,
-              child: Icon(
-                iconList[index], size: 30,
+    return Container(
+      decoration: BoxDecoration(gradient: bg1),
+      child: Scaffold(
+        backgroundColor: Color(0x00000000),
+        body: pageList[currentIndex],
+        bottomNavigationBar: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          // backgroundColor: bgColor,
+          backgroundColor: Color(0x00000000),
+          currentIndex: currentIndex,
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Color(0xFFFFFFFF),
+          selectedFontSize: 0,
+          unselectedFontSize: 0,
+          items: List.generate(
+            pageList.length,
+            (index) => BottomNavigationBarItem(
+              label: labelList[index],
+              icon: Container(
+                width: 60,
+                height: 55,
+                decoration: currentIndex == index
+                    ? BoxDecoration(
+                        gradient: LinearGradient(
+                            colors: [Color(0xFFffa366), Color(0x0000)],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            stops: [.1, .1]))
+                    : BoxDecoration(),
+                //color: currentIndex == index ? Colors.yellow : bgColor,
+                child: Icon(
+                  iconList[index], size: 30,
 
-                // color:
-                //     currentIndex == index ? Colors.amber[700] : Color(0xFFFFFFFF),
+                  // color:
+                  //     currentIndex == index ? Colors.amber[700] : Color(0xFFFFFFFF),
+                ),
               ),
             ),
           ),
+          onTap: (index) {
+            setState(() {
+              currentIndex = index;
+            });
+          },
         ),
-        onTap: (index) {
-          setState(() {
-            currentIndex = index;
-          });
-        },
       ),
     );
   }

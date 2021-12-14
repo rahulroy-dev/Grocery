@@ -18,8 +18,8 @@ class _SignUpState extends State<SignUp> {
   TextEditingController phoneController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   final dbRefUsers = FirebaseDatabase.instance.reference().child('Users');
-  final dbRefCatagories =
-      FirebaseDatabase.instance.reference().child('Catagories');
+  final dbRefCategories =
+      FirebaseDatabase.instance.reference().child('Categories');
   @override
   Widget build(BuildContext context) {
     double w = MediaQuery.of(context).size.width;
@@ -163,13 +163,18 @@ class _SignUpState extends State<SignUp> {
                 ),
                 ElevatedButton(
                     onPressed: () {
-                      dbRefCatagories.push().set({
-                        "catagories": "Vegitables",
-                        "details": "banana,brocoly",
-                        "images":
-                            "https://i.ibb.co/fpqqNS7/400-good-day-britannia-original-imafwh3rxpqqzzfy.jpg",
+                      // dbRefUsers.push().set({
+                      //   "Name": nameController.text,
+                      //   "Password": passwordController.text,
+                      //   "Phone": phoneController.text,
+                      //   "role_id": "1",
+                      // });
+                      dbRefCategories.push().set({
+                        "categories": "cleaning Supplies",
+                        "details": "laundry detergent, dishwasing soap",
+                        "images": "https://i.ibb.co/vBHn5N1/detergents.png",
                         "status": "Active",
-                        "veg": true,
+                        "veg": false,
                       });
                     },
                     child: Text(
