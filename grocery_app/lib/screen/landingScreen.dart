@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:grocery_app/Logout.dart';
-import 'package:grocery_app/home.dart';
-import 'package:grocery_app/offer.dart';
-import 'package:grocery_app/orderhistory.dart';
+import 'package:grocery_app/screen/Logout.dart';
+import 'package:grocery_app/screen/home.dart';
+import 'package:grocery_app/screen/offer.dart';
+import 'package:grocery_app/screen/orderhistory.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({Key? key}) : super(key: key);
@@ -26,6 +26,7 @@ class _LandingScreenState extends State<LandingScreen> {
     ],
   );
   int currentIndex = 0;
+
   final iconList = <IconData>[
     CupertinoIcons.home,
     CupertinoIcons.gift,
@@ -55,6 +56,7 @@ class _LandingScreenState extends State<LandingScreen> {
           unselectedItemColor: Color(0xFFFFFFFF),
           selectedFontSize: 0,
           unselectedFontSize: 0,
+          elevation: 0,
           items: List.generate(
             pageList.length,
             (index) => BottomNavigationBarItem(

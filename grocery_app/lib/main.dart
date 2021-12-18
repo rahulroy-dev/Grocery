@@ -1,9 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:grocery_app/cart.dart';
-import 'package:grocery_app/landingScreen.dart';
-import 'package:grocery_app/signIn.dart';
-import 'package:grocery_app/signUp.dart';
+import 'package:grocery_app/screen/cart.dart';
+import 'package:grocery_app/screen/landingScreen.dart';
+import 'package:grocery_app/screen/signIn.dart';
+import 'package:grocery_app/screen/signUp.dart';
 import 'package:grocery_app/utils/routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'constantVarriables.dart';
