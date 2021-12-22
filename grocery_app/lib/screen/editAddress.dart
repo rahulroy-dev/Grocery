@@ -1,6 +1,8 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:grocery_app/screen/address.dart';
 import 'package:grocery_app/utils/colorvar.dart';
 
@@ -66,6 +68,45 @@ class _EditAddressState extends State<EditAddress> {
   ];
   List addressList = [];
   String? ddv;
+  String latitude = "";
+  String longitude = "";
+  int _counter = 0;
+
+  void getLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    List<Placemark> placemarks =
+        await placemarkFromCoordinates(position.latitude, position.longitude);
+
+    setState(() {
+      latitude = position.latitude.toString();
+      longitude = position.longitude.toString();
+
+      ddv = placemarks[0].administrativeArea.toString();
+      pinControler.text = placemarks[0].postalCode.toString();
+      cityControler.text = placemarks[0].locality.toString();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -89,14 +130,17 @@ class _EditAddressState extends State<EditAddress> {
                 addressList.clear();
 
                 orderValues.forEach((key, values) {
-                  nameControler.text = values["name"];
-                  phoneControler.text = values["phone"];
-                  pinControler.text = values["zip"];
-                  ddv = values["state"];
-                  cityControler.text = values["city"];
-                  addl1Controler.text = values["house_no"];
-                  addl2Controler.text = values["street"];
-                  landmarkControler.text = values["landmark"];
+                  if (_counter == 0) {
+                    nameControler.text = values["name"];
+                    phoneControler.text = values["phone"];
+                    pinControler.text = values["zip"];
+                    ddv = values["state"];
+                    cityControler.text = values["city"];
+                    addl1Controler.text = values["house_no"];
+                    addl2Controler.text = values["street"];
+                    landmarkControler.text = values["landmark"];
+                    _counter = 1;
+                  }
                 });
                 return Padding(
                   padding: const EdgeInsets.only(top: 25.0),
@@ -178,6 +222,9 @@ class _EditAddressState extends State<EditAddress> {
                                     ),
                                   ),
                                   GestureDetector(
+                                    onTap: () {
+                                      getLocation();
+                                    },
                                     child: Container(
                                       width: width / 2 - 20,
                                       height: 35,
@@ -327,7 +374,7 @@ class _EditAddressState extends State<EditAddress> {
                                     if (!formkey.currentState!.validate()) {
                                       return;
                                     }
-                                    dbRefAddress.push().set({
+                                    dbRefAddress.child(widget.addid).update({
                                       "city": nameControler.text,
                                       "house_no": addl1Controler.text,
                                       "landmark": landmarkControler.text,
@@ -339,11 +386,7 @@ class _EditAddressState extends State<EditAddress> {
                                           preferences!.getString("user_id"),
                                       "zip": pinControler.text
                                     });
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                AddressPage()));
+                                    Navigator.pop(context);
                                   },
                                   child: Container(
                                     height: 35,
@@ -353,7 +396,7 @@ class _EditAddressState extends State<EditAddress> {
                                         borderRadius: BorderRadius.circular(5)),
                                     child: Center(
                                       child: Text(
-                                        "Submit",
+                                        "Update",
                                         style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold),

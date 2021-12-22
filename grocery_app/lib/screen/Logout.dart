@@ -2,7 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:grocery_app/constantVarriables.dart';
 import 'package:grocery_app/screen/address.dart';
-import 'package:grocery_app/screen/order_details.dart';
+import 'package:grocery_app/screen/offer.dart';
+import 'package:grocery_app/screen/orderhistory.dart';
 import 'package:grocery_app/utils/colorvar.dart';
 import 'package:grocery_app/utils/routes.dart';
 
@@ -77,7 +78,7 @@ class _LogoutAlertState extends State<LogoutAlert> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => OrderDetails()));
+                              builder: (context) => OrderHistory()));
                     },
                   ),
                   InkWell(
@@ -142,7 +143,12 @@ class _LogoutAlertState extends State<LogoutAlert> {
                               ],
                             ),
                           ),
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Offer()));
+                          },
                         ),
                       ],
                     ),

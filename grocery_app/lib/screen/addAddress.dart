@@ -1,7 +1,8 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
-import 'package:grocery_app/screen/address.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:grocery_app/utils/colorvar.dart';
 
 import '../constantVarriables.dart';
@@ -65,30 +66,46 @@ class _AddAddressState extends State<AddAddress> {
     "Lakshadweep",
     "Puducherry"
   ];
+  String? ddv;
 
-  // void getLocation() async {
-  //   Position position = await Geolocator.getCurrentPosition(
-  //       desiredAccuracy: LocationAccuracy.high);
-  //   print(position);
-  // }
+  String latitude = "";
+  String longitude = "";
 
-  void initState() {
-    super.initState();
+  void getLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    List<Placemark> placemarks =
+        await placemarkFromCoordinates(position.latitude, position.longitude);
+
+    setState(() {
+      latitude = position.latitude.toString();
+      longitude = position.longitude.toString();
+
+      ddv = placemarks[0].administrativeArea.toString();
+      pinControler.text = placemarks[0].postalCode.toString();
+      cityControler.text = placemarks[0].locality.toString();
+    });
   }
 
-  // getAddressOnLocation() async {
-  //   final coordinates = new Coordinates(12.982030, 77.5935);
-  //   var addresses =
-  //       await Geocoder.local.findAddressesFromCoordinates(coordinates);
-  //   setState(() {
-  //     add1 = addresses.first.featureName;
-  //     add2 = addresses.first.addressLine;
-  //     print(add1);
-  //     print(add2);
-  //   });
-  // }
-
-  String? ddv;
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -184,7 +201,9 @@ class _AddAddressState extends State<AddAddress> {
                                   ),
                                 ),
                                 GestureDetector(
-                                  onTap: () {},
+                                  onTap: () {
+                                    getLocation();
+                                  },
                                   child: Container(
                                     width: width / 2 - 20,
                                     height: 35,
@@ -343,10 +362,7 @@ class _AddAddressState extends State<AddAddress> {
                                         preferences!.getString("user_id"),
                                     "zip": pinControler.text
                                   });
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => AddressPage()));
+                                  Navigator.pop(context);
                                 },
                                 child: Container(
                                   height: 35,

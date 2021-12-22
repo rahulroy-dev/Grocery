@@ -1,5 +1,9 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:grocery_app/screen/selectAddress.dart';
 import 'package:grocery_app/utils/colorvar.dart';
+
+import '../constantVarriables.dart';
 
 class Mycart extends StatefulWidget {
   const Mycart({Key? key}) : super(key: key);
@@ -19,16 +23,21 @@ class _MycartState extends State<Mycart> {
   //List<String> off = [' 20% OFF', ' 20% OFF', ' 20% OFF'];
   List<String> dprice = ['₹200', '₹200', '₹120'];
   List<String> weigth = ['1.00 kg', '2.00kg', '2.00kg'];
+  final dbRefCart = FirebaseDatabase.instance.reference().child('Carts');
+  final dbRefProduct = FirebaseDatabase.instance.reference().child('Products');
+  List cartKeyList = [];
+  List cartMenuIdList = [];
+  List cartValuesList = [];
+  List cartRateList = [];
+  List productList = [];
+  List productQuanList = [];
+  double total = 0.0;
+  double discount = 0;
 
   @override
   Widget build(BuildContext context) {
-    List<int> total = [];
-    for (int i = 0; i <= 5; i++) {
-      int sum = 20;
-      total.add(sum);
-    }
-    double w = MediaQuery.of(context).size.width;
-    double h = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
     return Container(
       decoration: BoxDecoration(gradient: bg1),
       child: Scaffold(
@@ -45,13 +54,13 @@ class _MycartState extends State<Mycart> {
             child: Column(
               children: [
                 Text(" My Cart"),
-                Padding(
-                  padding: const EdgeInsets.only(right: 15),
-                  child: Text(
-                    "2 items",
-                    style: TextStyle(fontSize: 15),
-                  ),
-                ),
+                // Padding(
+                //   padding: const EdgeInsets.only(right: 15),
+                //   child: Text(
+                //     "$item items",
+                //     style: TextStyle(fontSize: 15),
+                //   ),
+                // ),
               ],
             ),
           ),
@@ -62,241 +71,510 @@ class _MycartState extends State<Mycart> {
               child: new Icon(Icons.arrow_back_ios)),
         ),
         body: Container(
-          color: Colors.grey[200],
-          height: h,
-          child: SingleChildScrollView(
-            physics: BouncingScrollPhysics(),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 40.0,
-                ),
-                Column(
-                    children: List.generate(
-                  img.length,
-                  (index) => Container(
-                    height: 140,
-                    margin: EdgeInsets.only(left: 10, right: 10, bottom: 10),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(3),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.white,
-                            offset: const Offset(5.0, 5.0),
-                            blurRadius: 10.0,
-                          )
-                        ]),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          //imgage
-                          children: [
-                            Image.network(
-                              img[index],
-                              height: 140.0,
-                              width: 110.0,
-                            )
-                          ],
-                        ),
-                        Container(
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  //price;
-                                  children: [
-                                    Padding(
-                                        padding:
-                                            EdgeInsets.symmetric(vertical: 25)),
-                                    Text(
-                                      price[index],
-                                      style: TextStyle(
-                                          color: bg,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18.0),
-                                    ),
-                                    SizedBox(
-                                      width: 5.0,
-                                    ),
-                                    Text(
-                                      dprice[index],
-                                      style: TextStyle(
-                                          color: Colors.grey,
-                                          decoration:
-                                              TextDecoration.lineThrough,
-                                          fontSize: 18.0),
-                                    ),
-                                    SizedBox(
-                                      width: 30.0,
-                                    ),
-                                    Container(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: Center(
-                                              child: Text(
-                                            "  " +
-                                                total[index].toString() +
-                                                "% OFF  ",
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 12),
-                                          )),
-                                        ),
-                                        decoration: BoxDecoration(
-                                            color: Colors.red,
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(2.0))))
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 8.0,
-                                ),
-                                Column(
-                                  children: [
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(right: 90.0),
-                                      child: Text(
-                                        name[index],
-                                        style: TextStyle(
-                                          fontSize: 18.0,
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 15.0,
-                                ),
-                                Row(
-                                  //  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  //weight
-                                  children: [
-                                    Card(
-                                      child: Container(
-                                        height: 20.0,
-                                        child: Center(
-                                            child: Text(
-                                          "  " + weigth[index] + "  ",
-                                          style: TextStyle(
-                                            color: bg,
-                                          ),
-                                        )),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 50.0,
-                                    ),
-                                    Card(
-                                      child: Container(
-                                        height: 30.0,
-                                        width: 30,
-                                        child: Center(
-                                          child: Icon(
-                                            Icons.remove,
-                                            color: Colors.white,
-                                          ),
-                                          // style: TextStyle(
-                                          //     color: Colors.white, fontSize: 25),
-                                        ),
-                                        decoration: BoxDecoration(
-                                            gradient: bg1,
-                                            borderRadius: BorderRadius.all(
-                                              Radius.circular(5.0),
-                                            )),
-                                      ),
-                                    ),
-                                    Text("   1   "),
-                                    Card(
-                                      child: Container(
-                                        height: 30.0,
-                                        width: 30,
-                                        child: Center(
-                                            child: Icon(
-                                          Icons.add,
-                                          color: Colors.white,
-                                        )
-                                            // style: TextStyle(
-                                            //     color: Colors.white, fontSize: 25),
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+          ),
+          height: height,
+          child: StreamBuilder(
+              stream: dbRefCart.onValue,
+              builder: (BuildContext context, AsyncSnapshot<dynamic> snap) {
+                if (snap.hasData &&
+                    !snap.hasError &&
+                    snap.data.snapshot.value != null) {
+                  Map orderValues = snap.data.snapshot.value;
+                  cartKeyList.clear();
+                  cartMenuIdList.clear();
+                  cartValuesList.clear();
+                  cartRateList.clear();
+                  total = 0;
+                  discount = 0;
+
+                  orderValues.forEach((key, values) {
+                    if (values["user_id"] ==
+                        preferences!.getString('user_id')) {
+                      //addressList.add(values);
+                      //keyList.add(key);
+                      cartValuesList.add(values);
+                      cartKeyList.add(key);
+                      print(cartValuesList);
+                      total += int.parse(values["rate"]) *
+                          int.parse(values["quantity"]);
+                      discount += int.parse(values["discount"]) *
+                          int.parse(values["quantity"]);
+                    }
+                  });
+
+                  return (cartKeyList.length > 0)
+                      ? SingleChildScrollView(
+                          physics: BouncingScrollPhysics(),
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                height: 40.0,
+                              ),
+                              Column(
+                                  children: List.generate(
+                                cartValuesList.length,
+                                (index) => StreamBuilder<Object>(
+                                    stream: dbRefProduct
+                                        .orderByKey()
+                                        .equalTo(
+                                            cartValuesList[index]["menu_id"])
+                                        .onValue,
+                                    builder: (BuildContext context,
+                                        AsyncSnapshot<dynamic> snap) {
+                                      if (snap.hasData &&
+                                          !snap.hasError &&
+                                          snap.data.snapshot.value != null) {
+                                        Map orderValues =
+                                            snap.data.snapshot.value;
+                                        productList.clear();
+                                        orderValues.forEach((key, values) {
+                                          productList.add(values);
+                                          print(productList);
+                                        });
+                                        return Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              5, 0, 5, 5),
+                                          child: Card(
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(5)),
+                                            elevation: 2,
+                                            child: Container(
+                                              height: 150,
+                                              decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5)),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                        8, 12, 8, 8),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Container(
+                                                      width: (width) * .25,
+                                                      //color: Colors.amber,
+                                                      child: Image.network(
+                                                          productList[0]
+                                                              ["image"]),
+                                                    ),
+                                                    Container(
+                                                      width: (width) * .6,
+                                                      //color: Colors.pink[50],
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: [
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              Row(
+                                                                children: [
+                                                                  Text(
+                                                                    "₹" +
+                                                                        productList[0]
+                                                                            [
+                                                                            "sell_rate"],
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            18,
+                                                                        fontWeight:
+                                                                            FontWeight.bold),
+                                                                  ),
+                                                                  SizedBox(
+                                                                    width: 5,
+                                                                  ),
+                                                                  Text(
+                                                                    '₹',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize:
+                                                                          18,
+                                                                      color: Colors
+                                                                          .black54,
+                                                                    ),
+                                                                  ),
+                                                                  Text(
+                                                                    productList[
+                                                                            0][
+                                                                        "price"],
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            18,
+                                                                        color: Colors
+                                                                            .black54,
+                                                                        decoration:
+                                                                            TextDecoration.lineThrough),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              Container(
+                                                                decoration: BoxDecoration(
+                                                                    color: Colors
+                                                                        .red,
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            3)),
+                                                                child: Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                              .all(
+                                                                          4.0),
+                                                                  child: Center(
+                                                                      child:
+                                                                          Text(
+                                                                    '${((int.parse(productList[0]["price"]) - int.parse(productList[0]["sell_rate"])) * 100 / int.parse(productList[0]["price"])).floor()}% OFF',
+                                                                    style: TextStyle(
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .bold,
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontSize:
+                                                                            12),
+                                                                  )),
+                                                                ),
+                                                              )
+                                                            ],
+                                                          ),
+                                                          Container(
+                                                            child: Text(
+                                                              productList[0]
+                                                                  ["name"],
+                                                              style: TextStyle(
+                                                                  fontSize: 18),
+                                                              maxLines: 2,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                            ),
+                                                          ),
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              Container(
+                                                                height: 30,
+                                                                width: 100,
+                                                                decoration: BoxDecoration(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            4),
+                                                                    color: Colors
+                                                                        .white,
+                                                                    border: Border.all(
+                                                                        color: Colors
+                                                                            .grey)),
+                                                                child: Center(
+                                                                    child: Text(
+                                                                  productList[0]
+                                                                      [
+                                                                      "quantity"],
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          17,
+                                                                      color:
+                                                                          bg),
+                                                                )),
+                                                              ),
+                                                              Container(
+                                                                child: Row(
+                                                                  children: [
+                                                                    GestureDetector(
+                                                                      onTap:
+                                                                          () {
+                                                                        int q = int.parse(cartValuesList[index]
+                                                                            [
+                                                                            "quantity"]);
+                                                                        q--;
+                                                                        (q > 0)
+                                                                            ? dbRefCart.child(cartKeyList[index]).update({
+                                                                                "quantity": q.toString()
+                                                                              })
+                                                                            : dbRefCart.child(cartKeyList[index]).remove();
+                                                                      },
+                                                                      child:
+                                                                          Card(
+                                                                        child:
+                                                                            Container(
+                                                                          height:
+                                                                              30.0,
+                                                                          width:
+                                                                              30,
+                                                                          child:
+                                                                              Center(
+                                                                            child:
+                                                                                Icon(
+                                                                              Icons.remove,
+                                                                              color: Colors.white,
+                                                                            ),
+                                                                            // style: TextStyle(
+                                                                            //     color: Colors.white, fontSize: 25),
+                                                                          ),
+                                                                          decoration: BoxDecoration(
+                                                                              gradient: bg1,
+                                                                              borderRadius: BorderRadius.all(
+                                                                                Radius.circular(5.0),
+                                                                              )),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                    SizedBox(
+                                                                      width: 5,
+                                                                    ),
+                                                                    Text(cartValuesList[
+                                                                            index]
+                                                                        [
+                                                                        "quantity"]),
+                                                                    SizedBox(
+                                                                      width: 5,
+                                                                    ),
+                                                                    GestureDetector(
+                                                                      onTap:
+                                                                          () {
+                                                                        int q = int.parse(cartValuesList[index]
+                                                                            [
+                                                                            "quantity"]);
+                                                                        q++;
+                                                                        dbRefCart
+                                                                            .child(cartKeyList[
+                                                                                index])
+                                                                            .update({
+                                                                          "quantity":
+                                                                              q.toString()
+                                                                        });
+                                                                      },
+                                                                      child:
+                                                                          Card(
+                                                                        child:
+                                                                            Container(
+                                                                          height:
+                                                                              30.0,
+                                                                          width:
+                                                                              30,
+                                                                          child: Center(
+                                                                              child: Icon(
+                                                                            Icons.add,
+                                                                            color:
+                                                                                Colors.white,
+                                                                          )
+                                                                              // style: TextStyle(
+                                                                              //     color: Colors.white, fontSize: 25),
+                                                                              ),
+                                                                          decoration: BoxDecoration(
+                                                                              gradient: bg1,
+                                                                              borderRadius: BorderRadius.all(
+                                                                                Radius.circular(5.0),
+                                                                              )),
+                                                                        ),
+                                                                      ),
+                                                                    )
+                                                                  ],
+                                                                ),
+                                                              )
+                                                              // Text(cartMenuList
+                                                              //     .indexWhere((element) =>
+                                                              //         element.contains(
+                                                              //             keyList[
+                                                              //                 index]))
+                                                              //     .toString()),
+                                                            ],
+                                                          )
+                                                        ],
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
                                             ),
-                                        decoration: BoxDecoration(
-                                            gradient: bg1,
-                                            borderRadius: BorderRadius.all(
-                                              Radius.circular(5.0),
-                                            )),
-                                      ),
-                                    )
-                                  ],
-                                )
-                              ],
-                            ),
+                                          ),
+                                        );
+                                      }
+
+                                      return Center(child: Container());
+                                    }),
+                              )),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                                  //height: 250,
+                                  //margin: EdgeInsets.only(left: 10, right: 10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(20.0),
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          "Bill Details",
+                                          style: TextStyle(
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.w700),
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "Total",
+                                              style: TextStyle(fontSize: 17),
+                                            ),
+                                            Text(
+                                              "${(total + discount).toStringAsFixed(2)}",
+                                              style: TextStyle(fontSize: 17),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "Products Discount",
+                                              style: TextStyle(fontSize: 17),
+                                            ),
+                                            Text(
+                                              "-${discount.toStringAsFixed(2)}",
+                                              style: TextStyle(fontSize: 17),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "Delivery Charges",
+                                              style: TextStyle(fontSize: 17),
+                                            ),
+                                            Text(
+                                              "00.00",
+                                              style: TextStyle(fontSize: 17),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "CGST",
+                                              style: TextStyle(fontSize: 17),
+                                            ),
+                                            Text(
+                                              "00.00",
+                                              style: TextStyle(fontSize: 17),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "IGST",
+                                              style: TextStyle(fontSize: 17),
+                                            ),
+                                            Text(
+                                              "00.00",
+                                              style: TextStyle(fontSize: 17),
+                                            ),
+                                          ],
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              0, 10, 0, 10),
+                                          child: Container(
+                                            height: 2,
+                                            width: width,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "Total Pay",
+                                              style: TextStyle(
+                                                  fontSize: 17,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            Text(
+                                              "${total.toStringAsFixed(2)}",
+                                              style: TextStyle(
+                                                  fontSize: 17,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         )
-                      ],
-                    ),
-                  ),
-                )),
-                Container(
-                  height: 290,
-                  margin: EdgeInsets.only(left: 10, right: 10),
-                  decoration: BoxDecoration(
+                      : Center(
+                          child: Text("No Data"),
+                        );
+                  //
+
+                }
+
+                return Center(child: CircularProgressIndicator());
+              }),
+        ),
+        bottomNavigationBar: GestureDetector(
+          onTap: () {
+            if (total != 0) {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => SelectAddressPage(
+                            total: total,
+                          )));
+            }
+          },
+          child: Container(
+              height: 50,
+              //width: 100,
+              decoration: BoxDecoration(
+                  gradient: bg1, borderRadius: BorderRadius.circular(50)),
+              child: Center(
+                  child: Text(
+                "Place Order",
+                style: TextStyle(
                     color: Colors.white,
-                  ),
-                  child: Container(
-                    child: Column(
-                      children: [
-                        Text(
-                          "Bill Details",
-                          style: TextStyle(
-                              fontSize: 17, fontWeight: FontWeight.w700),
-                        ),
-                        Padding(padding: EdgeInsets.only(top: 10)),
-                        Text(
-                          "Total                                                            490.00",
-                          style: TextStyle(fontSize: 17),
-                        ),
-                        Padding(padding: EdgeInsets.only(top: 10)),
-                        Text(
-                            "Products Discount                                      89.00",
-                            style: TextStyle(fontSize: 17)),
-                        Padding(padding: EdgeInsets.only(top: 10)),
-                        Text(
-                            "Delivery Charges                                           0.00",
-                            style: TextStyle(fontSize: 17)),
-                        Padding(padding: EdgeInsets.only(top: 10)),
-                        Text(
-                            "CGST                                                               0.00",
-                            style: TextStyle(fontSize: 17)),
-                        Padding(padding: EdgeInsets.only(top: 10)),
-                        Text(
-                            "IGST                                                                0.00",
-                            style: TextStyle(fontSize: 17)),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 10, 10, 10),
-                          child: Container(
-                            height: 2,
-                            width: w,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Text(
-                            "Total Pay                                                     401.00",
-                            style: TextStyle(
-                                fontSize: 17, fontWeight: FontWeight.w600)),
-                      ],
-                    ),
-                    alignment: Alignment.topLeft,
-                  ),
-                  padding: EdgeInsets.only(left: 10, top: 10),
-                ),
-              ],
-            ),
-          ),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1),
+              ))),
         ),
       ),
     );

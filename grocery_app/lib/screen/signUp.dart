@@ -39,16 +39,16 @@ class _SignUpState extends State<SignUp> {
             ),
           ),
         ),
-        body: SingleChildScrollView(
-          child: Form(
-            child: Container(
-              height: h,
-              width: w,
-              margin: EdgeInsets.only(top: 25.0),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
-                color: Colors.white,
-              ),
+        body: Form(
+          child: Container(
+            height: h,
+            width: w,
+            margin: EdgeInsets.only(top: 25.0),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
+              color: Colors.white,
+            ),
+            child: SingleChildScrollView(
               child: Column(
                 children: [
                   SizedBox(
@@ -168,19 +168,20 @@ class _SignUpState extends State<SignUp> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      // dbRefUsers.push().set({
-                      //   "Name": nameController.text,
-                      //   "Password": passwordController.text,
-                      //   "Phone": phoneController.text,
-                      //   "role_id": "1",
-                      // });
-                      dbRefCategories.push().set({
-                        "categories": "cleaning Supplies",
-                        "details": "laundry detergent, dishwasing soap",
-                        "images": "https://i.ibb.co/vBHn5N1/detergents.png",
-                        "status": "Active",
-                        "veg": false,
+                      dbRefUsers.push().set({
+                        "Name": nameController.text,
+                        "Password": passwordController.text,
+                        "Phone": phoneController.text,
+                        "role_id": "1",
                       });
+                      Navigator.pushNamed(context, MyRoutes.signin);
+                      // dbRefCategories.push().set({
+                      //   "categories": "cleaning Supplies",
+                      //   "details": "laundry detergent, dishwasing soap",
+                      //   "images": "https://i.ibb.co/vBHn5N1/detergents.png",
+                      //   "status": "Active",
+                      //   "veg": false,
+                      // });
                     },
                     child: Container(
                       height: 40,

@@ -1,8 +1,12 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:grocery_app/utils/colorvar.dart';
 
+import '../constantVarriables.dart';
+
 class OrderDetails extends StatefulWidget {
-  const OrderDetails({Key? key}) : super(key: key);
+  final String orderNo;
+  const OrderDetails({Key? key, required this.orderNo}) : super(key: key);
 
   @override
   _OrderDetailsState createState() => _OrderDetailsState();
@@ -32,6 +36,15 @@ class _OrderDetailsState extends State<OrderDetails> {
   // var oderDate = "";
   // var conNumber = "";
   // var address = "";
+  final dbRefOrder = FirebaseDatabase.instance.reference().child('Orders');
+  List orderValueList = [];
+  double total = 0;
+  final dbRefProducts = FirebaseDatabase.instance.reference().child('Products');
+  List productsValueList = [];
+  double discount = 0;
+  List disList = [];
+  List quanList = [];
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -75,328 +88,52 @@ class _OrderDetailsState extends State<OrderDetails> {
                       topRight: Radius.circular(40.0),
                     ),
                   ),
-                  child: Container(
-                    margin: const EdgeInsets.only(top: 15.0, right: 5, left: 5),
-                    child: ListView(
-                      physics: const BouncingScrollPhysics(),
-                      scrollDirection: Axis.vertical,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.only(
-                                top: 2.0,
-                                left: 7.0,
-                              ),
-                              child: Text(
-                                "This order is not delivered",
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 22.0,
-                                    fontWeight: FontWeight.w500),
-                              ),
-                            ),
-                            const Divider(
-                              color: Colors.black45,
-                              height: 5,
-                              thickness: 1,
-                              indent: 5,
-                              endIndent: 5,
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.only(top: 5.0, left: 5.0),
-                              child: Text(
-                                "Your Order",
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 22.0,
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(6.0),
-                              child: Card(
-                                elevation: 8.0,
-                                color: Colors.grey.shade200,
-                                child: Column(
+                  child: StreamBuilder<Object>(
+                      stream: dbRefOrder.onValue,
+                      builder:
+                          (BuildContext context, AsyncSnapshot<dynamic> snap) {
+                        if (snap.hasData &&
+                            !snap.hasError &&
+                            snap.data.snapshot.value != null) {
+                          Map orderValues = snap.data.snapshot.value;
+                          print(orderValueList.length);
+                          orderValueList.clear();
+                          total = 0;
+                          orderValues.forEach((key, values) {
+                            if (values["user_id"] ==
+                                    preferences!.getString('user_id') &&
+                                values["order_id"] == widget.orderNo) {
+                              //addressList.add(values);
+                              //keyList.add(key);
+                              print(widget.orderNo);
+                              orderValueList.add(values);
+                              print("hii");
+                              print(orderValueList);
+                              total += double.parse(values["menu_rate"]);
+                            }
+                          });
+                          return Container(
+                            margin: const EdgeInsets.only(
+                                top: 15.0, right: 5, left: 5),
+                            child: ListView(
+                              physics: const BouncingScrollPhysics(),
+                              scrollDirection: Axis.vertical,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Column(
-                                        children: List.generate(
-                                            orderitemName.length,
-                                            (index) => Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              8.0),
-                                                      child: Text(
-                                                        orderitemName[index],
-                                                        style: const TextStyle(
-                                                            fontSize: 17),
-                                                      ),
-                                                    ),
-                                                    Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        Container(
-                                                          margin:
-                                                              const EdgeInsets
-                                                                      .symmetric(
-                                                                  horizontal:
-                                                                      8.0,
-                                                                  vertical:
-                                                                      5.0),
-                                                          child: Row(
-                                                            children: [
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .all(
-                                                                        8.0),
-                                                                child:
-                                                                    Container(
-                                                                  height: 30,
-                                                                  width: 30,
-                                                                  decoration:
-                                                                      BoxDecoration(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            100),
-                                                                  ),
-                                                                  child: Center(
-                                                                      child:
-                                                                          Text(
-                                                                    orderitemNumber[
-                                                                            index]
-                                                                        .toString(),
-                                                                    style: const TextStyle(
-                                                                        fontSize:
-                                                                            20.0,
-                                                                        fontWeight:
-                                                                            FontWeight.w500),
-                                                                  )),
-                                                                ),
-                                                              ),
-                                                              const Text(
-                                                                "X ",
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        18.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500),
-                                                              ),
-                                                              const Text(
-                                                                " ₹ ",
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        17.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500),
-                                                              ),
-                                                              Text(
-                                                                orderitemMRP[
-                                                                        index]
-                                                                    .toString(),
-                                                                style: const TextStyle(
-                                                                    fontSize:
-                                                                        20.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500),
-                                                              )
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        Container(
-                                                          margin:
-                                                              const EdgeInsets
-                                                                      .symmetric(
-                                                                  horizontal:
-                                                                      8.0,
-                                                                  vertical:
-                                                                      5.0),
-                                                          child: Row(
-                                                            children: [
-                                                              const Text(
-                                                                "₹ ",
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        15.0,
-                                                                    decoration:
-                                                                        TextDecoration
-                                                                            .lineThrough),
-                                                              ),
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .only(
-                                                                        left:
-                                                                            2.0,
-                                                                        right:
-                                                                            8.0),
-                                                                child: Text(
-                                                                  orderitemMRP[
-                                                                          index]
-                                                                      .toString(),
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          20.0,
-                                                                      decoration:
-                                                                          TextDecoration
-                                                                              .lineThrough),
-                                                                ),
-                                                              ),
-                                                              const Text(
-                                                                "  ₹ ",
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        17.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500),
-                                                              ),
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .only(
-                                                                        left: 2,
-                                                                        right:
-                                                                            8.0),
-                                                                child: Text(
-                                                                  orderitemPrice[
-                                                                          index]
-                                                                      .toString(),
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          21.0,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w800),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        )
-                                                      ],
-                                                    ),
-                                                    const Divider(
-                                                      color: Colors.black45,
-                                                      height: 5,
-                                                      thickness: 1,
-                                                      indent: 5,
-                                                      endIndent: 5,
-                                                    ),
-                                                  ],
-                                                ))),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: const [
-                                            Padding(
-                                              padding: EdgeInsets.all(4.0),
-                                              child: Text(
-                                                "Item Total",
-                                                style: TextStyle(
-                                                    fontSize: 20,
-                                                    fontWeight:
-                                                        FontWeight.w800),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsets.all(4.0),
-                                              child: Text(
-                                                "SGST",
-                                                style: TextStyle(
-                                                    fontSize: 20,
-                                                    fontWeight:
-                                                        FontWeight.w800),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsets.all(4.0),
-                                              child: Text(
-                                                "IGST",
-                                                style: TextStyle(
-                                                    fontSize: 20,
-                                                    fontWeight:
-                                                        FontWeight.w800),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsets.all(4.0),
-                                              child: Text(
-                                                "Delivery Charge",
-                                                style: TextStyle(
-                                                    fontSize: 20,
-                                                    fontWeight:
-                                                        FontWeight.w800),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Column(
-                                          children: [
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(4.0),
-                                              child: Text(
-                                                "₹ " + item_total.toString(),
-                                                style: const TextStyle(
-                                                    fontSize: 20.0,
-                                                    fontWeight:
-                                                        FontWeight.w800),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(4.0),
-                                              child: Text(
-                                                "₹ " + SGST.toString(),
-                                                style: const TextStyle(
-                                                    fontSize: 20.0,
-                                                    fontWeight:
-                                                        FontWeight.w800),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(4.0),
-                                              child: Text(
-                                                "₹ " + IGST.toString(),
-                                                style: const TextStyle(
-                                                    fontSize: 20.0,
-                                                    fontWeight:
-                                                        FontWeight.w800),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(4.0),
-                                              child: Text(
-                                                "₹ " +
-                                                    DeliveryCharge.toString(),
-                                                style: const TextStyle(
-                                                    fontSize: 20.0,
-                                                    fontWeight:
-                                                        FontWeight.w800),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                                    const Padding(
+                                      padding: EdgeInsets.only(
+                                        top: 2.0,
+                                        left: 7.0,
+                                      ),
+                                      child: Text(
+                                        "This order is not delivered",
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 22.0,
+                                            fontWeight: FontWeight.w500),
+                                      ),
                                     ),
                                     const Divider(
                                       color: Colors.black45,
@@ -405,193 +142,535 @@ class _OrderDetailsState extends State<OrderDetails> {
                                       indent: 5,
                                       endIndent: 5,
                                     ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        const Padding(
-                                          padding: EdgeInsets.all(8.0),
-                                          child: Text(
-                                            "Grand Total",
-                                            style: TextStyle(
-                                                fontSize: 20.0,
-                                                fontWeight: FontWeight.w700),
-                                          ),
+                                    const Padding(
+                                      padding:
+                                          EdgeInsets.only(top: 5.0, left: 5.0),
+                                      child: Text(
+                                        "Your Order",
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 22.0,
                                         ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text(
-                                            "₹ " + GrandTotal.toString(),
-                                            style: const TextStyle(
-                                                fontSize: 20.0,
-                                                fontWeight: FontWeight.w700),
-                                          ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(6.0),
+                                      child: Card(
+                                        elevation: 8.0,
+                                        color: Colors.grey.shade200,
+                                        child: Column(
+                                          children: [
+                                            Column(
+                                                children: List.generate(
+                                                    orderValueList.length,
+                                                    (index) => StreamBuilder(
+                                                        stream: dbRefProducts
+                                                            .orderByKey()
+                                                            .equalTo(
+                                                                orderValueList[
+                                                                        index][
+                                                                    "product_id"])
+                                                            .onValue,
+                                                        builder: (BuildContext
+                                                                context,
+                                                            AsyncSnapshot<
+                                                                    dynamic>
+                                                                snap) {
+                                                          if (snap.hasData &&
+                                                              !snap.hasError &&
+                                                              snap.data.snapshot
+                                                                      .value !=
+                                                                  null) {
+                                                            Map orderValues =
+                                                                snap
+                                                                    .data
+                                                                    .snapshot
+                                                                    .value;
+                                                            print(orderValueList
+                                                                .length);
+                                                            productsValueList
+                                                                .clear();
+
+                                                            orderValues.forEach(
+                                                                (key, values) {
+                                                              productsValueList
+                                                                  .add(values);
+                                                              discount += double
+                                                                      .parse(values[
+                                                                          "price"]) *
+                                                                  double.parse(
+                                                                      orderValueList[
+                                                                              index]
+                                                                          [
+                                                                          "quantity"]);
+                                                            });
+                                                            return Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                              .all(
+                                                                          8.0),
+                                                                  child: Text(
+                                                                    productsValueList[
+                                                                            0][
+                                                                        "name"],
+                                                                    style: const TextStyle(
+                                                                        fontSize:
+                                                                            17),
+                                                                  ),
+                                                                ),
+                                                                Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .spaceBetween,
+                                                                  children: [
+                                                                    Container(
+                                                                      margin: const EdgeInsets
+                                                                              .symmetric(
+                                                                          horizontal:
+                                                                              8.0,
+                                                                          vertical:
+                                                                              5.0),
+                                                                      child:
+                                                                          Row(
+                                                                        children: [
+                                                                          Padding(
+                                                                            padding:
+                                                                                const EdgeInsets.all(8.0),
+                                                                            child:
+                                                                                Container(
+                                                                              height: 30,
+                                                                              width: 30,
+                                                                              decoration: BoxDecoration(
+                                                                                color: Colors.white,
+                                                                                borderRadius: BorderRadius.circular(100),
+                                                                              ),
+                                                                              child: Center(
+                                                                                  child: Text(
+                                                                                orderValueList[index]["quantity"],
+                                                                                style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),
+                                                                              )),
+                                                                            ),
+                                                                          ),
+                                                                          const Text(
+                                                                            "X ",
+                                                                            style:
+                                                                                TextStyle(fontSize: 18.0, fontWeight: FontWeight.w500),
+                                                                          ),
+                                                                          const Text(
+                                                                            " ₹ ",
+                                                                            style:
+                                                                                TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500),
+                                                                          ),
+                                                                          Text(
+                                                                            double.parse(productsValueList[0]["sell_rate"]).toStringAsFixed(2),
+                                                                            style:
+                                                                                const TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),
+                                                                          ),
+                                                                          SizedBox(
+                                                                            width:
+                                                                                5,
+                                                                          ),
+                                                                          Text(
+                                                                            "₹ ",
+                                                                            style:
+                                                                                TextStyle(
+                                                                              fontSize: 15.0,
+                                                                            ),
+                                                                          ),
+                                                                          Text(
+                                                                            double.parse(productsValueList[0]["price"]).toStringAsFixed(2),
+                                                                            style:
+                                                                                const TextStyle(fontSize: 20.0, decoration: TextDecoration.lineThrough),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                    Container(
+                                                                      margin: const EdgeInsets
+                                                                              .symmetric(
+                                                                          horizontal:
+                                                                              8.0,
+                                                                          vertical:
+                                                                              5.0),
+                                                                      child:
+                                                                          Row(
+                                                                        children: [
+                                                                          const Text(
+                                                                            "  ₹ ",
+                                                                            style:
+                                                                                TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500),
+                                                                          ),
+                                                                          Padding(
+                                                                            padding:
+                                                                                const EdgeInsets.only(left: 2, right: 8.0),
+                                                                            child:
+                                                                                Text(
+                                                                              double.parse(orderValueList[index]["menu_rate"]).toStringAsFixed(2),
+                                                                              style: const TextStyle(fontSize: 21.0, fontWeight: FontWeight.w800),
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    )
+                                                                  ],
+                                                                ),
+                                                                const Divider(
+                                                                  color: Colors
+                                                                      .black45,
+                                                                  height: 5,
+                                                                  thickness: 1,
+                                                                  indent: 5,
+                                                                  endIndent: 5,
+                                                                ),
+                                                              ],
+                                                            );
+                                                          }
+                                                          return Center(
+                                                              child:
+                                                                  Container());
+                                                        }))),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Column(
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        "Item Total",
+                                                        style: TextStyle(
+                                                            fontSize: 20,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w800),
+                                                      ),
+                                                      Text(
+                                                        "₹ " +
+                                                            total
+                                                                .toStringAsFixed(
+                                                                    2),
+                                                        style: const TextStyle(
+                                                            fontSize: 20.0,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w800),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  SizedBox(
+                                                    height: 10,
+                                                  ),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        "CGST",
+                                                        style: TextStyle(
+                                                            fontSize: 20,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w800),
+                                                      ),
+                                                      Text(
+                                                        "00.00",
+                                                        style: const TextStyle(
+                                                            fontSize: 20.0,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w800),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  SizedBox(
+                                                    height: 10,
+                                                  ),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        "IGST",
+                                                        style: TextStyle(
+                                                            fontSize: 20,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w800),
+                                                      ),
+                                                      Text(
+                                                        "00.00",
+                                                        style: const TextStyle(
+                                                            fontSize: 20.0,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w800),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  SizedBox(
+                                                    height: 10,
+                                                  ),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        "Delivery Charge",
+                                                        style: TextStyle(
+                                                            fontSize: 20,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w800),
+                                                      ),
+                                                      Text(
+                                                        "00.00",
+                                                        style: const TextStyle(
+                                                            fontSize: 20.0,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w800),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            const Divider(
+                                              color: Colors.black45,
+                                              height: 5,
+                                              thickness: 1,
+                                              indent: 5,
+                                              endIndent: 5,
+                                            ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                const Padding(
+                                                  padding: EdgeInsets.all(8.0),
+                                                  child: Text(
+                                                    "Grand Total",
+                                                    style: TextStyle(
+                                                        fontSize: 20.0,
+                                                        fontWeight:
+                                                            FontWeight.w700),
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Text(
+                                                    "₹ " +
+                                                        total
+                                                            .toStringAsFixed(2),
+                                                    style: const TextStyle(
+                                                        fontSize: 20.0,
+                                                        fontWeight:
+                                                            FontWeight.w700),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Container(
+                                              margin: const EdgeInsets.only(
+                                                  bottom: 10.0,
+                                                  right: 8.0,
+                                                  left: 8.0,
+                                                  top: 5.0),
+                                              decoration: BoxDecoration(
+                                                  gradient: bg1,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          5.0)),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  // const Padding(
+                                                  //   padding:
+                                                  //       EdgeInsets.all(8.0),
+                                                  //   child: Text(
+                                                  //     "Your total savings",
+                                                  //     style: TextStyle(
+                                                  //       color: Colors.white,
+                                                  //       fontSize: 17.0,
+                                                  //     ),
+                                                  //   ),
+                                                  // ),
+                                                  // Padding(
+                                                  //   padding:
+                                                  //       const EdgeInsets.all(
+                                                  //           8.0),
+                                                  //   child: Text(
+                                                  //     "₹ " +
+                                                  //         discount.toString(),
+                                                  //     style: const TextStyle(
+                                                  //       color: Colors.white,
+                                                  //       fontSize: 17.0,
+                                                  //     ),
+                                                  //   ),
+                                                  // )
+                                                ],
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ],
+                                      ),
+                                    ),
+                                    const Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text(
+                                        "Order Details",
+                                        style: TextStyle(
+                                            fontSize: 25.0,
+                                            fontWeight: FontWeight.w700),
+                                      ),
+                                    ),
+                                    const Divider(
+                                      color: Colors.black45,
+                                      height: 5,
+                                      thickness: 1,
+                                      indent: 5,
+                                      endIndent: 5,
                                     ),
                                     Container(
-                                      margin: const EdgeInsets.only(
-                                          bottom: 10.0,
-                                          right: 8.0,
-                                          left: 8.0,
-                                          top: 5.0),
-                                      decoration: BoxDecoration(
-                                          gradient: bg1,
-                                          borderRadius:
-                                              BorderRadius.circular(5.0)),
+                                      margin: const EdgeInsets.all(8.0),
                                       child: Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          const Padding(
-                                            padding: EdgeInsets.all(8.0),
-                                            child: Text(
-                                              "Your total savings",
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 17.0,
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Order Number",
+                                                style: TextStyle(
+                                                  fontSize: 15.0,
+                                                ),
                                               ),
-                                            ),
+                                              Padding(
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 8.0),
+                                                child: Text(
+                                                  "#" +
+                                                      widget.orderNo.toString(),
+                                                  style: TextStyle(
+                                                      fontSize: 17.0,
+                                                      fontWeight:
+                                                          FontWeight.w700),
+                                                ),
+                                              ),
+                                              Text(
+                                                "Payment",
+                                                style: TextStyle(
+                                                  fontSize: 15.0,
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                    EdgeInsets.only(top: 8.0),
+                                                child: Text("Online Payment",
+                                                    style: TextStyle(
+                                                        fontSize: 17.0,
+                                                        fontWeight:
+                                                            FontWeight.w700)),
+                                              ),
+                                            ],
                                           ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text(
-                                              "₹ " + totalSavimgs.toString(),
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 17.0,
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Date",
+                                                style: TextStyle(
+                                                  fontSize: 15.0,
+                                                ),
                                               ),
-                                            ),
-                                          )
+                                              Padding(
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 8.0),
+                                                child: Text(
+                                                    orderValueList[0]["time"]
+                                                        .toString(),
+                                                    style: TextStyle(
+                                                        fontSize: 17.0,
+                                                        fontWeight:
+                                                            FontWeight.w700)),
+                                              ),
+                                              Text(
+                                                "Mobile Number",
+                                                style: TextStyle(
+                                                  fontSize: 15.0,
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                    EdgeInsets.only(top: 8.0),
+                                                child: Text(
+                                                    orderValueList[0]["phone"],
+                                                    style: TextStyle(
+                                                        fontSize: 17.0,
+                                                        fontWeight:
+                                                            FontWeight.w700)),
+                                              ),
+                                            ],
+                                          ),
                                         ],
                                       ),
                                     ),
+                                    Container(
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 8.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Deliver to",
+                                            style: TextStyle(
+                                              fontSize: 15.0,
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                                top: 8.0, bottom: 15.0),
+                                            child: Text(
+                                                orderValueList[0]["street"] +
+                                                    "," +
+                                                    orderValueList[0]["zip"] +
+                                                    "," +
+                                                    orderValueList[0]["state"],
+                                                style: TextStyle(
+                                                    fontSize: 17.0,
+                                                    fontWeight:
+                                                        FontWeight.w700)),
+                                          ),
+                                        ],
+                                      ),
+                                    )
                                   ],
                                 ),
-                              ),
+                              ],
                             ),
-                            const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Text(
-                                "Order Details",
-                                style: TextStyle(
-                                    fontSize: 25.0,
-                                    fontWeight: FontWeight.w700),
-                              ),
-                            ),
-                            const Divider(
-                              color: Colors.black45,
-                              height: 5,
-                              thickness: 1,
-                              indent: 5,
-                              endIndent: 5,
-                            ),
-                            Container(
-                              margin: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: const [
-                                      Text(
-                                        "Order Number",
-                                        style: TextStyle(
-                                          fontSize: 15.0,
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding:
-                                            EdgeInsets.symmetric(vertical: 8.0),
-                                        child: Text(
-                                          "#1",
-                                          style: TextStyle(
-                                              fontSize: 17.0,
-                                              fontWeight: FontWeight.w700),
-                                        ),
-                                      ),
-                                      Text(
-                                        "Payment",
-                                        style: TextStyle(
-                                          fontSize: 15.0,
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.only(top: 8.0),
-                                        child: Text("Online Payment",
-                                            style: TextStyle(
-                                                fontSize: 17.0,
-                                                fontWeight: FontWeight.w700)),
-                                      ),
-                                    ],
-                                  ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: const [
-                                      Text(
-                                        "Date",
-                                        style: TextStyle(
-                                          fontSize: 15.0,
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding:
-                                            EdgeInsets.symmetric(vertical: 8.0),
-                                        child: Text("13 Oct,2021 1:09 PM",
-                                            style: TextStyle(
-                                                fontSize: 17.0,
-                                                fontWeight: FontWeight.w700)),
-                                      ),
-                                      Text(
-                                        "Mobile Number",
-                                        style: TextStyle(
-                                          fontSize: 15.0,
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.only(top: 8.0),
-                                        child: Text("8927545556",
-                                            style: TextStyle(
-                                                fontSize: 17.0,
-                                                fontWeight: FontWeight.w700)),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: const [
-                                  Text(
-                                    "Deliver to",
-                                    style: TextStyle(
-                                      fontSize: 15.0,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.only(top: 8.0, bottom: 15.0),
-                                    child: Text(
-                                        "Hosenpur,721429,West Bengal,India",
-                                        style: TextStyle(
-                                            fontSize: 17.0,
-                                            fontWeight: FontWeight.w700)),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+                          );
+                        }
+                        return Center(child: CircularProgressIndicator());
+                      }),
                 ),
               ),
             ],

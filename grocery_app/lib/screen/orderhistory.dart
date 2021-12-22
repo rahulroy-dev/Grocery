@@ -1,4 +1,7 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:grocery_app/constantVarriables.dart';
+import 'package:grocery_app/screen/order_details.dart';
 import 'package:grocery_app/utils/colorvar.dart';
 
 class OrderHistory extends StatefulWidget {
@@ -93,7 +96,11 @@ class _OrderHistoryState extends State<OrderHistory> {
     "Pending",
     "Pending",
   ];
-
+  final dbRefOrder = FirebaseDatabase.instance.reference().child('Orders');
+  List orderValueList = [];
+  List orderNo = [];
+  List orderAmount = [];
+  List orderTime = [];
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -130,98 +137,164 @@ class _OrderHistoryState extends State<OrderHistory> {
                       topRight: Radius.circular(40.0),
                     ),
                   ),
-                  child: Container(
-                    margin: const EdgeInsets.only(top: 15.0, right: 5, left: 5),
-                    child: ListView.builder(
-                        physics: const BouncingScrollPhysics(),
-                        scrollDirection: Axis.vertical,
-                        itemCount: orderPrice.length,
-                        itemBuilder: (context, index) {
-                          return Card(
-                            color: Colors.purple.shade50,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "Order No",
-                                        // orderlist[index],
-                                        style: TextStyle(fontSize: 20.0),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          top: 6,
-                                        ),
-                                        child: Text(
-                                          // orderNo[index],
-                                          "#${index + 1}",
-                                          style:
-                                              const TextStyle(fontSize: 20.0),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8.0),
-                                        child: Text(
-                                          orderPrice[index],
-                                          style:
-                                              const TextStyle(fontSize: 20.0),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "Date",
-                                        // orderDate[index],
-                                        style: TextStyle(fontSize: 20.0),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            top: 3, bottom: 3),
-                                        child: Text(orderDatetime[index],
-                                            style: const TextStyle(
-                                                fontSize: 20.0)),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8.0),
-                                        child: Container(
-                                          height: 27,
-                                          width: 150,
-                                          decoration: BoxDecoration(
-                                              color: Colors.pink,
-                                              borderRadius:
-                                                  BorderRadius.circular(5)),
-                                          child: Center(
-                                            child: Text(
-                                              orderStetas[index],
-                                              style: const TextStyle(
-                                                  fontSize: 18.0,
-                                                  color: Colors.white),
+                  child: StreamBuilder(
+                      stream: dbRefOrder.onValue,
+                      builder:
+                          (BuildContext context, AsyncSnapshot<dynamic> snap) {
+                        if (snap.hasData &&
+                            !snap.hasError &&
+                            snap.data.snapshot.value != null) {
+                          Map orderValues = snap.data.snapshot.value;
+                          orderValueList.clear();
+
+                          orderValues.forEach((key, values) {
+                            if (values["user_id"] ==
+                                preferences!.getString('user_id')) {
+                              //addressList.add(values);
+                              //keyList.add(key);
+                              orderValueList.add(values);
+                              print(orderValueList);
+                              if (!orderNo.any((element) =>
+                                  element.contains(values["order_id"]))) {
+                                orderNo.add(values["order_id"]);
+                                orderTime.add(values["time"]);
+                                orderAmount.add(int.parse(values["menu_rate"]));
+                              } else {
+                                int amt = int.parse(values["menu_rate"]);
+                                if (orderAmount.isNotEmpty) {
+                                  orderAmount[orderAmount.length - 1] += amt;
+                                }
+                              }
+                            }
+                          });
+                          return Container(
+                            margin: const EdgeInsets.only(
+                                top: 15.0, right: 5, left: 5),
+                            child: ListView.builder(
+                                physics: const BouncingScrollPhysics(),
+                                scrollDirection: Axis.vertical,
+                                itemCount: orderNo.length,
+                                itemBuilder: (context, index) {
+                                  return InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  OrderDetails(
+                                                      orderNo: orderNo[
+                                                              orderNo.length -
+                                                                  index -
+                                                                  1]
+                                                          .toString())));
+                                    },
+                                    child: Card(
+                                      color: Colors.purple.shade50,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const Text(
+                                                  "Order No",
+                                                  // orderlist[index],
+                                                  style:
+                                                      TextStyle(fontSize: 20.0),
+                                                ),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                    top: 6,
+                                                  ),
+                                                  child: Text(
+                                                    // orderNo[index],
+                                                    orderNo[orderNo.length -
+                                                        index -
+                                                        1],
+                                                    style: const TextStyle(
+                                                        fontSize: 20.0),
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(vertical: 8.0),
+                                                  child: Text(
+                                                    orderAmount[orderNo.length -
+                                                            index -
+                                                            1]
+                                                        .toString(),
+                                                    style: const TextStyle(
+                                                        fontSize: 20.0),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                        ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(10.0),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const Text(
+                                                  "Date",
+                                                  // orderDate[index],
+                                                  style:
+                                                      TextStyle(fontSize: 20.0),
+                                                ),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          top: 3, bottom: 3),
+                                                  child: Text(
+                                                      orderTime[orderNo.length -
+                                                          index -
+                                                          1],
+                                                      style: const TextStyle(
+                                                          fontSize: 20.0)),
+                                                ),
+                                                Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(vertical: 8.0),
+                                                  child: Container(
+                                                    height: 27,
+                                                    width: 150,
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.pink,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(5)),
+                                                    child: Center(
+                                                      child: Text(
+                                                        orderStetas[
+                                                            orderNo.length -
+                                                                index -
+                                                                1],
+                                                        style: const TextStyle(
+                                                            fontSize: 18.0,
+                                                            color:
+                                                                Colors.white),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
+                                    ),
+                                  );
+                                }),
                           );
-                        }),
-                  ),
+                        }
+                        return Center(child: CircularProgressIndicator());
+                      }),
                 ),
               ),
             ],

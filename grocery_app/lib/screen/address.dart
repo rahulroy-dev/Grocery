@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:grocery_app/constantVarriables.dart';
 import 'package:grocery_app/screen/addAddress.dart';
 import 'package:grocery_app/screen/editAddress.dart';
-import 'package:grocery_app/screen/landingScreen.dart';
 import 'package:grocery_app/utils/colorvar.dart';
 
 class AddressPage extends StatefulWidget {
@@ -61,8 +60,7 @@ class _AddressPageState extends State<AddressPage> {
           appBar: AppBar(
             leading: GestureDetector(
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => LandingScreen()));
+                Navigator.pop(context);
               },
               child: Icon(Icons.arrow_back),
             ),
@@ -82,8 +80,8 @@ class _AddressPageState extends State<AddressPage> {
                 borderRadius: BorderRadius.vertical(top: Radius.circular(40))),
             child: StreamBuilder(
                 stream: dbRefAddress
-                    .orderByChild("user_id")
-                    .equalTo(preferences!.getString('user_id'))
+                    // .orderByChild("user_id")
+                    // .equalTo(preferences!.getString('user_id'))
                     .onValue,
                 builder: (BuildContext context, AsyncSnapshot<dynamic> snap) {
                   if (snap.hasData &&
@@ -92,10 +90,14 @@ class _AddressPageState extends State<AddressPage> {
                     Map orderValues = snap.data.snapshot.value;
                     addressList.clear();
                     keyList.clear();
+
                     orderValues.forEach((key, values) {
-                      addressList.add(values);
-                      keyList.add(key);
-                      print(keyList);
+                      if (values["user_id"] ==
+                          preferences!.getString('user_id')) {
+                        addressList.add(values);
+                        keyList.add(key);
+                        print(keyList);
+                      }
                     });
                     return SingleChildScrollView(
                       child: Column(
@@ -177,11 +179,10 @@ class _AddressPageState extends State<AddressPage> {
                                                                               EditAddress(addid: keyList[index])));
                                                                 } else if (value ==
                                                                     2) {
-                                                                  Navigator.push(
-                                                                      context,
-                                                                      MaterialPageRoute(
-                                                                          builder: (context) =>
-                                                                              LandingScreen()));
+                                                                  dbRefAddress
+                                                                      .child(keyList[
+                                                                          index])
+                                                                      .remove();
                                                                 }
                                                               });
                                                             },

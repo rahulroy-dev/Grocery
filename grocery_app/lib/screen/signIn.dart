@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:grocery_app/constantVarriables.dart';
+import 'package:grocery_app/screen/forgotPass.dart';
 //import 'package:grocery_app/home.dart';
 import 'package:grocery_app/screen/landingScreen.dart';
 import 'package:grocery_app/utils/colorvar.dart';
@@ -58,16 +59,16 @@ class _SignInState extends State<SignIn> {
                   });
                   //print(userList);
                   //print(passList);
-                  return SingleChildScrollView(
-                    child: Container(
-                      height: h,
-                      margin: EdgeInsets.only(top: 130),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(40)),
-                      ),
-                      padding: EdgeInsets.only(top: 21),
+                  return Container(
+                    height: h,
+                    margin: EdgeInsets.only(top: 130),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(40)),
+                    ),
+                    padding: EdgeInsets.only(top: 21),
+                    child: SingleChildScrollView(
                       child: Column(
                         children: [
                           Container(
@@ -186,31 +187,29 @@ class _SignInState extends State<SignIn> {
                           Container(
                             padding: EdgeInsets.only(left: 20),
                             child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                Checkbox(
-                                  value: this.valuefirst,
-                                  onChanged: (bool? value) {
-                                    setState(() {
-                                      this.valuefirst = value!;
-                                    });
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (contex) => ForgotPass()));
                                   },
+                                  child: Text(
+                                    "Forgot password?",
+                                    style: TextStyle(
+                                        color: Colors.redAccent, fontSize: 18),
+                                  ),
                                 ),
-                                // Padding(padding: EdgeInsets.only(left: 5)),
-                                Text(
-                                  "Remember me",
-                                  style: TextStyle(fontSize: 18),
-                                ),
-                                Padding(padding: EdgeInsets.only(left: 40)),
-                                Text(
-                                  "Forgot password?",
-                                  style: TextStyle(
-                                      color: Colors.redAccent, fontSize: 18),
+                                SizedBox(
+                                  width: 20,
                                 )
                               ],
                             ),
                             alignment: Alignment.topLeft,
                           ),
-                          Padding(padding: EdgeInsets.only(top: 50)),
+                          Padding(padding: EdgeInsets.only(top: 30)),
                           // Container(
                           //   decoration: BoxDecoration(
                           //       gradient: bg1,
@@ -275,13 +274,26 @@ class _SignInState extends State<SignIn> {
                                     print(keyList[i]);
                                     preferences!
                                         .setString("user_id", keyList[i]);
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                LandingScreen()));
+                                    Navigator.pushNamed(
+                                        context, MyRoutes.landingscreen);
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(const SnackBar(
+                                      backgroundColor: Colors.green,
+                                      content: Text(
+                                        'Signed in successfully',
+                                        style: TextStyle(fontSize: 18),
+                                      ),
+                                    ));
                                   } else {
                                     //break;
+                                    // ScaffoldMessenger.of(context)
+                                    //     .showSnackBar(const SnackBar(
+                                    //   backgroundColor: Colors.red,
+                                    //   content: Text(
+                                    //     'Wrong user id and password',
+                                    //     style: TextStyle(fontSize: 18),
+                                    //   ),
+                                    // ));
                                   }
                                 }
                               }
@@ -313,73 +325,7 @@ class _SignInState extends State<SignIn> {
                           SizedBox(
                             height: 24,
                           ),
-                          Row(
-                            children: [
-                              SizedBox(
-                                width: 95,
-                              ),
-                              Card(
-                                elevation: 5,
-                                child: Container(
-                                  height: 50,
-                                  child: Image.network(
-                                      'https://i.ibb.co/MMpBmPK/Whats-App-Image-2021-11-23-at-9-09-15-PM.jpg'),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(5),
-                                    boxShadow: [
-                                      // BoxShadow(
-                                      //   color: Colors.black54,
-                                      //   offset: const Offset(3.0, 3.0),
-                                      //   blurRadius: 5.0,
-                                      // )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                width: 25,
-                              ),
-                              Card(
-                                elevation: 5.0,
-                                child: Container(
-                                  height: 50,
-                                  child: Image.network(
-                                      'https://i.ibb.co/y6j9GJR/Whats-App-Image-2021-11-23-at-9-09-14-PM-1.jpg'),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    // boxShadow: [
-                                    //   BoxShadow(
-                                    //     color: Colors.black54,
-                                    //     offset: const Offset(3.0, 3.0),
-                                    //     blurRadius: 4.0,
-                                    //   )
-                                    // ],
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                width: 25,
-                              ),
-                              Card(
-                                elevation: 5,
-                                child: Container(
-                                  height: 50,
-                                  child: Image.network(
-                                      'https://i.ibb.co/z2051pT/Whats-App-Image-2021-11-23-at-9-09-40-PM.jpg'),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    // boxShadow: [
-                                    //   BoxShadow(
-                                    //     color: Colors.black54,
-                                    //     offset: const Offset(3.0, 3.0),
-                                    //     blurRadius: 5.0,
-                                    //   )
-                                    // ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+
                           SizedBox(
                             height: 80,
                           )
